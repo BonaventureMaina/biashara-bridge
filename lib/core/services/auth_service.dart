@@ -8,7 +8,6 @@ abstract class IAuthService {
       String email, String password);
   Future<Either<Failure, AppUser>> signUpWithEmailAndPassword(
       String email, String password);
-  Future<Either<Failure, AppUser>> signInWithGoogle();
   Future<Either<Failure, Unit>> signOut();
   Future<Option<AppUser>> getSignedInUser();
 }
