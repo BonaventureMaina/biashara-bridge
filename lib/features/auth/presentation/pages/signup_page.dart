@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
-import 'signup_page.dart';
 
-class LoginPage extends ConsumerStatefulWidget {
-  const LoginPage({super.key});
+class SignUpPage extends ConsumerStatefulWidget {
+  const SignUpPage({super.key});
 
   @override
-  ConsumerState<LoginPage> createState() => _LoginPageState();
+  ConsumerState<SignUpPage> createState() => _SignUpPageState();
 }
 
-class _LoginPageState extends ConsumerState<LoginPage> {
+class _SignUpPageState extends ConsumerState<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -20,17 +20,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleEmailSignIn() async {
+  Future<void> _handleSignUp() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() => _errorMessage = 'Passwords do not match.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     final controller = ref.read(authControllerProvider);
-    final result = await controller.signInWithEmail(
+    final result = await controller.signUpWithEmail(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
@@ -41,7 +47,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       (failure) {
         setState(() => _errorMessage = failure.message);
       },
-      (_) {},
+      (_) {
+        // Signed up successfully; auth state stream will update
+      },
     );
   }
 
@@ -49,7 +57,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Biashara Bridge'),
+        title: const Text('Create account'),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -60,12 +68,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Welcome back',
+                  'Join Biashara Bridge',
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Sign in to manage your business',
+                  'Create an account to register your business',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -86,6 +94,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   obscureText: true,
                   decoration: const InputDecoration(
                     labelText: 'Password',
+                    prefixIcon: Icon(Icons.lock_outlined),
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Confirm password',
                     prefixIcon: Icon(Icons.lock_outlined),
                     border: OutlineInputBorder(),
                   ),
@@ -111,26 +129,22 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   width: double.infinity,
                   height: 48,
                   child: FilledButton(
-                    onPressed: _isLoading ? null : _handleEmailSignIn,
+                    onPressed: _isLoading ? null : _handleSignUp,
                     child: _isLoading
                         ? const SizedBox(
                             height: 24,
                             width: 24,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Sign In'),
+                        : const Text('Sign Up'),
                   ),
                 ),
                 const SizedBox(height: 24),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const SignUpPage(),
-                      ),
-                    );
+                    Navigator.of(context).pop();
                   },
-                  child: const Text("Don't have an account? Sign up"),
+                  child: const Text('Already have an account? Sign in'),
                 ),
               ],
             ),

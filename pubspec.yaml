@@ -29,6 +29,7 @@ dependencies:
   intl: ^0.18.1
   uuid: ^4.0.0
   dartz: ^0.10.1
+  http: ^1.6.0
 
 dev_dependencies:
   flutter_test:
