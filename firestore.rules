@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Businesses collection
+    match /businesses/{docId} {
+      // Any authenticated user can create a business
+      allow create: if request.auth != null;
+      // Only the owner can read or update their own business
+      allow read, update, delete: if resource.data.ownerId == request.auth.uid;
+    }
+    // Allow reading all businesses for the map (public data only)
+    match /businesses/{docId} {
+      allow read: if request.auth != null;
+    }
+  }
+}

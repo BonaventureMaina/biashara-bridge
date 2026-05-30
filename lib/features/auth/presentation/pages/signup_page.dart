@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../registration/presentation/pages/business_registration_page.dart';
 import '../providers/auth_provider.dart';
 
 class SignUpPage extends ConsumerStatefulWidget {
@@ -48,7 +49,12 @@ class _SignUpPageState extends ConsumerState<SignUpPage> {
         setState(() => _errorMessage = failure.message);
       },
       (_) {
-        // Signed up successfully; auth state stream will update
+        // Navigate directly to business registration
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (_) => const BusinessRegistrationPage(),
+          ),
+        );
       },
     );
   }
