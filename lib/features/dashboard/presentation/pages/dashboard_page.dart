@@ -1,44 +1,123 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/services/auth_service.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../registration/domain/entities/business.dart';
+import '../../../registration/presentation/providers/registration_provider.dart';
 import '../../../registration/presentation/pages/business_registration_page.dart';
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateChangesProvider);
     final user = authState.valueOrNull;
 
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: Text('Not signed in')),
+      );
+    }
+
+    final businessesAsync = ref.watch(businessesByOwnerProvider(user.id));
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Biashara Bridge')),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Welcome, ${user?.displayName ?? user?.email ?? "User"}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const BusinessRegistrationPage(),
+      appBar: AppBar(
+        title: const Text('Biashara Bridge'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () => ref.read(authControllerProvider).signOut(),
+          ),
+        ],
+      ),
+      body: businessesAsync.when(
+        data: (businesses) {
+          if (businesses.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Welcome, ${user.displayName ?? user.email}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.add_business),
+                    label: const Text('Register your first business'),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const BusinessRegistrationPage(),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-              child: const Text('Register a Business'),
+                ],
+              ),
+            );
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Your Businesses',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: businesses.length,
+                  itemBuilder: (context, index) {
+                    final biz = businesses[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: ListTile(
+                        title: Text(biz.name),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Code: ${biz.biasharaCode}'),
+                            Text(biz.addressLine,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          // TODO: Navigate to business detail/profile
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+        loading: () =>
+            const Center(child: CircularProgressIndicator()),
+        error: (error, stack) =>
+            Center(child: Text('Error: $error')),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const BusinessRegistrationPage(),
             ),
-            const SizedBox(height: 8),
-            OutlinedButton(
-              onPressed: () {
-                ref.read(authControllerProvider).signOut();
-              },
-              child: const Text('Sign Out'),
-            ),
-          ],
-        ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Add Business'),
       ),
     );
   }

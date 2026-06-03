@@ -28,6 +28,29 @@ final registrationControllerProvider =
   );
 });
 
+// Stream of businesses owned by a user
+final businessesByOwnerProvider =
+    StreamProvider.family<List<Business>, String>((ref, ownerId) {
+  final repository = ref.watch(businessRepositoryProvider);
+  return repository.getBusinessesByOwner(ownerId).map((either) {
+    return either.fold(
+      (failure) => throw Exception(failure.message),
+      (businesses) => businesses,
+    );
+  });
+});
+
+// Future provider for a single business by Biashara Code
+final businessByBiasharaCodeProvider =
+    FutureProvider.family<Business?, String>((ref, code) async {
+  final repository = ref.watch(businessRepositoryProvider);
+  final result = await repository.getByBiasharaCode(code);
+  return result.fold(
+    (failure) => throw Exception(failure.message),
+    (business) => business,
+  );
+});
+
 class RegistrationController {
   final IBusinessRepository _repository;
 
