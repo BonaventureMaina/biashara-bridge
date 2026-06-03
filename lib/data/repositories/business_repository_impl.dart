@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import '../../core/errors/failures.dart';
 import '../../core/services/business_repository.dart';
+import '../../core/utils/biashara_code_util.dart';
 import '../../features/registration/domain/entities/business.dart';
 import '../datasources/remote/firestore_business_datasource.dart';
 import '../models/business_model.dart';
@@ -25,14 +26,18 @@ class BusinessRepositoryImpl implements IBusinessRepository {
     String? phoneNumber,
     String? description,
   }) async {
-    // Create the domain entity (without id/biasharaCode yet)
     final now = DateTime.now();
+    final biasharaCode = BiasharaCodeUtil.generate(
+      latitude: latitude,
+      longitude: longitude,
+    );
+
     final domain = Business(
-      id: '', // will be set from Firestore doc ID
+      id: '',
       ownerId: ownerId,
       name: name,
       registrationNumber: registrationNumber,
-      biasharaCode: '', // will be set by Cloud Function
+      biasharaCode: biasharaCode,
       location: GeoPoint(latitude, longitude),
       addressLine: addressLine,
       category: category,
