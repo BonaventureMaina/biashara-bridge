@@ -5,6 +5,7 @@ import '../../../registration/domain/entities/business.dart';
 import '../../../registration/presentation/providers/registration_provider.dart';
 import '../../../registration/presentation/pages/business_registration_page.dart';
 import '../../../payments/presentation/pages/invoice_page.dart';
+import '../../../analytics/presentation/pages/analytics_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -29,6 +30,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       appBar: AppBar(
         title: const Text('Biashara Bridge'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.map),
+            tooltip: 'Market Analytics',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AnalyticsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Sign Out',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../providers/auth_provider.dart';
 import 'signup_page.dart';
 
@@ -14,7 +15,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -24,33 +24,55 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _handleEmailSignIn() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
 
-    final controller = ref.read(authControllerProvider);
-    final result = await controller.signInWithEmail(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    if (email.isEmpty || password.isEmpty) {
+      _showError('Email and password are required.');
+      return;
+    }
 
-    setState(() => _isLoading = false);
+    setState(() => _isLoading = true);
 
-    result.fold(
-      (failure) {
-        setState(() => _errorMessage = failure.message);
-      },
-      (_) {},
+    try {
+      final controller = ref.read(authControllerProvider);
+      final result = await controller.signInWithEmail(email, password);
+
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+
+      result.fold(
+        (failure) => _showError(failure.message),
+        (user) {
+          // Successful sign‑in – navigate to Dashboard directly
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const DashboardPage()),
+          );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _showError('Unexpected error: $e');
+    }
+  }
+
+  void _showError(String message) {
+    print('LOGIN ERROR: $message');
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Biashara Bridge'),
-      ),
+      appBar: AppBar(title: const Text('Biashara Bridge')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -59,17 +81,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'Welcome back',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
+                Text('Welcome back',
+                    style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(height: 8),
-                Text(
-                  'Sign in to manage your business',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
+                Text('Sign in to manage your business',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        )),
                 const SizedBox(height: 32),
                 TextField(
                   controller: _emailController,
@@ -90,22 +108,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
@@ -125,9 +127,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const SignUpPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const SignUpPage()),
                     );
                   },
                   child: const Text("Don't have an account? Sign up"),

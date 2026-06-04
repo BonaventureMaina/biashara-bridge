@@ -15,8 +15,11 @@ class AuthRepositoryImpl implements IAuthService {
   @override
   Stream<AppUser?> get authStateChanges {
     return _datasource.authStateChanges.map((firebaseUser) {
-      if (firebaseUser == null) return null;
-      return UserModel.fromFirebaseUser(firebaseUser).toDomain();
+      final appUser = firebaseUser != null
+          ? UserModel.fromFirebaseUser(firebaseUser).toDomain()
+          : null;
+      print('AUTH STREAM emitted: $appUser');
+      return appUser;
     });
   }
 

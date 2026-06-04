@@ -51,6 +51,17 @@ final businessByBiasharaCodeProvider =
   );
 });
 
+// Stream of ALL businesses (for analytics map)
+final allBusinessesProvider = StreamProvider<List<Business>>((ref) {
+  final repository = ref.watch(businessRepositoryProvider);
+  return repository.getAllBusinesses().map((either) {
+    return either.fold(
+      (failure) => throw Exception(failure.message),
+      (businesses) => businesses,
+    );
+  });
+});
+
 class RegistrationController {
   final IBusinessRepository _repository;
 
