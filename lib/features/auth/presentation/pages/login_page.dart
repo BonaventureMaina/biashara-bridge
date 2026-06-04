@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../providers/auth_provider.dart';
 import 'signup_page.dart';
 
@@ -43,22 +42,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
       result.fold(
         (failure) => _showError(failure.message),
-        (user) {
-          // Successful sign‑in – navigate to Dashboard directly
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const DashboardPage()),
-          );
+        (_) {
+          // Auth stream will emit the new user and app.dart will navigate
+          // to the Dashboard automatically.
         },
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      _showError('Unexpected error: $e');
+      _showError('Unexpected error. Please try again.');
     }
   }
 
   void _showError(String message) {
-    print('LOGIN ERROR: $message');
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

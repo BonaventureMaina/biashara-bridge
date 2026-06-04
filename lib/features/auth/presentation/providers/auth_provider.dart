@@ -35,10 +35,8 @@ class AuthController {
 
   AuthController({required IAuthService authService}) : _authService = authService;
 
-  Future<Either<Failure, AppUser>> signInWithEmail(String email, String password) async {
-    final result = await _authService.signInWithEmailAndPassword(email, password);
-    print('AUTH CONTROLLER signInWithEmail result: $result');
-    return result;
+  Future<Either<Failure, AppUser>> signInWithEmail(String email, String password) {
+    return _authService.signInWithEmailAndPassword(email, password);
   }
 
   Future<Either<Failure, AppUser>> signUpWithEmail(String email, String password) {

@@ -12,29 +12,34 @@ class BiasharaBridgeApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateChangesProvider);
+    final user = authState.valueOrNull;
 
     return MaterialApp(
       title: 'Biashara Bridge',
       theme: AppTheme.lightTheme,
       debugShowCheckedModeBanner: false,
+      home: authState.when(
+        data: (user) {
+          if (user != null) return const DashboardPage();
+          return const LoginPage();
+        },
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (error, stack) => Scaffold(
+          body: Center(child: Text('Something went wrong: $error')),
+        ),
+      ),
       onGenerateRoute: (settings) {
-        // Parse route for /business/BSH-XXXX
         final uri = Uri.parse(settings.name ?? '');
-        if (uri.pathSegments.length == 2 &&
-            uri.pathSegments[0] == 'business') {
+        if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'business') {
           final code = uri.pathSegments[1];
           return MaterialPageRoute(
             builder: (_) => BusinessProfilePage(biasharaCode: code),
           );
         }
-        // Default route: show dashboard if signed in, else login
-        return MaterialPageRoute(
-          builder: (_) {
-            final user = authState.valueOrNull;
-            if (user != null) return const DashboardPage();
-            return const LoginPage();
-          },
-        );
+        // Fallback to home (should not happen)
+        return null;
       },
     );
   }
