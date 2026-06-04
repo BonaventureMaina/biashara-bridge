@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import '../../../../core/utils/location_utils.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../dashboard/presentation/pages/dashboard_page.dart';
 import '../providers/registration_provider.dart';
 import 'map_picker_page.dart';
 
@@ -46,9 +47,8 @@ class _BusinessRegistrationPageState
     if (selected != null) {
       setState(() {
         _pickedLocation = selected;
-        _addressLine = null; // will be resolved below
+        _addressLine = null;
       });
-      // Reverse geocode
       final address = await LocationUtils.reverseGeocode(
         selected.latitude,
         selected.longitude,
@@ -119,7 +119,11 @@ class _BusinessRegistrationPageState
                 'Business registered! Your Biashara Code: ${business.biasharaCode}'),
           ),
         );
-        Navigator.of(context).pop();
+        // Go to Dashboard and clear the navigation stack
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const DashboardPage()),
+          (route) => false,
+        );
       },
     );
   }
@@ -191,7 +195,6 @@ class _BusinessRegistrationPageState
                 maxLines: 3,
               ),
               const SizedBox(height: 24),
-              // Location picker
               OutlinedButton.icon(
                 icon: const Icon(Icons.map),
                 label: Text(
