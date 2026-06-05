@@ -150,11 +150,11 @@ The M‑Pesa integration uses the Safaricom Daraja sandbox:
 - [x] Public business profile + deep link
 - [x] M‑Pesa STK Push integration
 - [x] Geospatial analytics map
-- [ ] Heatmap overlay for underserved areas
-- [ ] Procurement module (bulk deals)
-- [ ] Integration tests for core flows
-- [ ] CI/CD with GitHub Actions
-- [ ] Offline inventory management
+- [x] Heatmap overlay for underserved areas
+- [x] Procurement module (bulk deals)
+- [x] Integration tests for core flows
+- [x] CI/CD with GitHub Actions
+- [x] Offline inventory management
 
 ---
 
