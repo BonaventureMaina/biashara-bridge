@@ -6,6 +6,8 @@ import '../../../registration/presentation/providers/registration_provider.dart'
 import '../../../registration/presentation/pages/business_registration_page.dart';
 import '../../../payments/presentation/pages/invoice_page.dart';
 import '../../../analytics/presentation/pages/analytics_page.dart';
+import '../../../procurement/presentation/pages/deals_page.dart';
+import '../../../procurement/presentation/pages/create_deal_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -30,6 +32,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       appBar: AppBar(
         title: const Text('Biashara Bridge'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            tooltip: 'Bulk Deals',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const DealsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.map),
             tooltip: 'Market Analytics',
@@ -120,6 +131,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          FloatingActionButton.extended(
+            heroTag: 'create_deal',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CreateDealPage()),
+              );
+            },
+            icon: const Icon(Icons.post_add),
+            label: const Text('Post Deal'),
+          ),
+          const SizedBox(height: 12),
           FloatingActionButton.extended(
             heroTag: 'invoice',
             onPressed: () {
