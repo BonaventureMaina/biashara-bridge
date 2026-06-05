@@ -8,6 +8,7 @@ import '../../../payments/presentation/pages/invoice_page.dart';
 import '../../../analytics/presentation/pages/analytics_page.dart';
 import '../../../procurement/presentation/pages/deals_page.dart';
 import '../../../procurement/presentation/pages/create_deal_page.dart';
+import '../../../inventory/presentation/pages/inventory_page.dart';
 
 class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
@@ -32,6 +33,15 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
       appBar: AppBar(
         title: const Text('Biashara Bridge'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.inventory_2),
+            tooltip: 'Inventory',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const InventoryPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             tooltip: 'Bulk Deals',
