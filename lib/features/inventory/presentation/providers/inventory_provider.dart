@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'dart:html' as html;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class InventoryItem {
   final String name;
@@ -29,24 +29,30 @@ class InventoryNotifier extends StateNotifier<List<InventoryItem>> {
 
   static const _storageKey = 'biashara_inventory';
 
-  Future<void> _loadFromStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_storageKey);
-    if (raw != null) {
-      final List<dynamic> decoded = json.decode(raw);
-      state = decoded.map((e) => InventoryItem.fromJson(e as Map<String, dynamic>)).toList();
+  void _loadFromStorage() {
+    try {
+      final raw = html.window.localStorage[_storageKey];
+      if (raw != null) {
+        final List<dynamic> decoded = json.decode(raw);
+        state = decoded.map((e) => InventoryItem.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } catch (_) {
+      // ignore
     }
   }
 
-  Future<void> _saveToStorage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final encoded = json.encode(state.map((e) => e.toJson()).toList());
-    await prefs.setString(_storageKey, encoded);
+  void _saveToStorage() {
+    try {
+      final encoded = json.encode(state.map((e) => e.toJson()).toList());
+      html.window.localStorage[_storageKey] = encoded;
+    } catch (_) {
+      // ignore
+    }
   }
 
   Future<void> addItem(InventoryItem item) async {
     state = [...state, item];
-    await _saveToStorage();
+    _saveToStorage();
   }
 
   Future<void> removeItem(int index) async {
@@ -55,7 +61,7 @@ class InventoryNotifier extends StateNotifier<List<InventoryItem>> {
         ...state.sublist(0, index),
         ...state.sublist(index + 1),
       ];
-      await _saveToStorage();
+      _saveToStorage();
     }
   }
 
@@ -71,7 +77,7 @@ class InventoryNotifier extends StateNotifier<List<InventoryItem>> {
         updated,
         ...state.sublist(index + 1),
       ];
-      await _saveToStorage();
+      _saveToStorage();
     }
   }
 }
